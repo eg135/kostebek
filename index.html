@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Köstebek Kim?</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-setup" class="game-section">
+        <h1>Köstebek Kim?</h1>
+        <label for="num_players">Oyuncu Sayısı (3-8):</label>
+        <select id="num_players">
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+        </select>
+        <button id="start-game">Başla</button>
+    </div>
+
+    <div id="show-role-screen" class="game-section" style="display:none;">
+        <h2 id="current-player-name"></h2>
+        <button id="show-role-button">Rolünü Göster</button>
+        <p class="role" id="player-role" style="display:none;"></p>
+        <button id="next-player-button">Kapat ve Sonraki</button>
+    </div>
+
+    <div id="game-over-screen" class="game-section" style="display:none;">
+        <h2>Tüm oyuncular rollerini gördü!</h2>
+        <button id="restart-game-button">Ana Sayfaya Dön</button>
+    </div>
+
+    <script>
+        const LOCATIONS = [
+            "Tarkan", "Sezen Aksu", "Ajda Pekkan", "Hadise", "Aleyna Tilki", "Edis",
+            "Hande Yener", "Sertab Erener", "Murat Boz", "İbrahim Tatlıses", "Müslüm Gürses",
+            "Barış Manço", "Teoman", "Şebnem Ferah", "Manga (Grup)", "Ceza", "Duman",
+            "Enes Batur", "Orkun Işıtmak", "Cemalcan Yurtseven", "Danla Biliç", "Cem Yılmaz",
+            "Müge Anlı", "Tolga Çevik", "İlber Ortaylı", "Zeki Müren", "Şener Şen",
+            "Kemal Sunal", "Ata Demirer", "Acun Ilıcalı", "Arda Turan", "Fatih Terim",
+            "Naim Süleymanoğlu", "Mete Gazoz", "Tayyip Erdoğan", "Muharrem İnce",
+            "Ekrem İmamoğlu", "Tansu Çiller", "Süleyman Demirel", "Kemal Kılıçdaroğlu",
+            "Kenan Evren", "Turgut Özal", "Behzat Ç", "Serdar Ortaç", "Volkan Konak",
+            "Neşet Ertaş", "Cüneyt Arkın", "MFÖ", "Haluk Bilginer", "Beyazıt Öztürk"
+        ];
+
+        let numPlayers = 0;
+        let players = [];
+        let currentRoleIndex = 0;
+        let roles = {};
+
+        // Get DOM elements
+        const gameSetupScreen = document.getElementById('game-setup');
+        const showRoleScreen = document.getElementById('show-role-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+
+        const numPlayersSelect = document.getElementById('num_players');
+        const startGameButton = document.getElementById('start-game');
+        const currentPlayerName = document.getElementById('current-player-name');
+        const showRoleButton = document.getElementById('show-role-button');
+        const playerRoleDisplay = document.getElementById('player-role');
+        const nextPlayerButton = document.getElementById('next-player-button');
+        const restartGameButton = document.getElementById('restart-game-button');
+
+        startGameButton.addEventListener('click', startGame);
+        showRoleButton.addEventListener('click', revealRole);
+        nextPlayerButton.addEventListener('click', showNextPlayer);
+        restartGameButton.addEventListener('click', resetGame);
+
+        function startGame() {
+            numPlayers = parseInt(numPlayersSelect.value);
+            players = [];
+            for (let i = 0; i < numPlayers; i++) {
+                players.push(`Oyuncu ${i + 1}`);
+            }
+            currentRoleIndex = 0;
+            roles = {};
+
+            const imposterIndex = Math.floor(Math.random() * numPlayers);
+            const imposterLocation = LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)];
+
+            for (let i = 0; i < numPlayers; i++) {
+                if (i === imposterIndex) {
+                    roles[players[i]] = "IMPOSTER";
+                } else {
+                    roles[players[i]] = imposterLocation;
+                }
+            }
+
+            gameSetupScreen.style.display = 'none';
+            showRoleScreen.style.display = 'block';
+            preparePlayerRoleDisplay();
+        }
+
+        function preparePlayerRoleDisplay() {
+            if (currentRoleIndex < players.length) {
+                const player = players[currentRoleIndex];
+                currentPlayerName.textContent = player;
+                playerRoleDisplay.style.display = 'none';
+                showRoleButton.style.display = 'block';
+                nextPlayerButton.style.display = 'none';
+            } else {
+                showRoleScreen.style.display = 'none';
+                gameOverScreen.style.display = 'block';
+            }
+        }
+
+        function revealRole() {
+            const player = players[currentRoleIndex];
+            const role = roles[player];
+            playerRoleDisplay.textContent = role;
+            playerRoleDisplay.style.display = 'block';
+            showRoleButton.style.display = 'none';
+            nextPlayerButton.style.display = 'block';
+        }
+
+        function showNextPlayer() {
+            currentRoleIndex++;
+            preparePlayerRoleDisplay();
+        }
+
+        function resetGame() {
+            gameOverScreen.style.display = 'none';
+            gameSetupScreen.style.display = 'block';
+        }
+
+        // Initial display
+        resetGame();
+    </script>
+</body>
+</html>
